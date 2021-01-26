@@ -123,7 +123,7 @@ namespace Wupoo
                         message = await client.GetAsync(_url);
                         break;
                     case HttpMethods.Post:
-                        if (postContent == null) throw new PostBodyNotGivenException();
+                        if (postContent == null) this.WithJsonBody(new object());
                         message = await client.PostAsync(_url, postContent);
                         break;
                     default:
