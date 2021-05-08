@@ -138,7 +138,7 @@ namespace Wupoo
                 if (contiuneAfterCodeHandling)
                 {
                     streamResultHandler?.Invoke(message.Content.Headers.ContentType.MediaType, await message.Content.ReadAsStreamAsync());
-                    if (stringResultHandler != null && (message.Content.Headers.ContentType.MediaType == "plain/text" || _options.IgnoreMediaTypeCheck))
+                    if (stringResultHandler != null && (message.Content.Headers.ContentType.MediaType == "text/plain" || _options.IgnoreMediaTypeCheck))
                     {
                         string text = await message.Content.ReadAsStringAsync();
                         stringResultHandler(text);
