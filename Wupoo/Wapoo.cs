@@ -155,7 +155,7 @@ namespace Wupoo
                         {
                             jsonObj = _options.JsonSerializerOptions == null ? JsonConvert.DeserializeObject(json, jsonType) : JsonConvert.DeserializeObject(json, jsonType, _options.JsonSerializerOptions);
                         }
-                        (typeof(Action<>).MakeGenericType(jsonType)).GetMethod("Invoke").Invoke(jsonResultHandler, new object[] { jsonObj });
+                        (typeof(Action<>).MakeGenericType(jsonType)).GetMethod("Invoke")?.Invoke(jsonResultHandler, new object[] { jsonObj });
                     }
                 }
             }
