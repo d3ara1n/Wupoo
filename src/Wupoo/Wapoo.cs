@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -38,6 +38,11 @@ namespace Wupoo
             return new Wapoo(DefaultOptons, url);
         }
 
+        public static Wapoo Wohoo(string url, WapooOptions options)
+        {
+            return new Wapoo(options, url);
+        }
+
         public Wapoo WhenCode(int code, Func<int, bool> action)
         {
             codeHandlers.Add(code, action);
@@ -56,7 +61,7 @@ namespace Wupoo
             return this;
         }
 
-        public Wapoo ForJsonResult<TModel>(Action<TModel> action) where TModel : class
+        public Wapoo ForJsonResult<TModel>(Action<TModel> action)
         {
             jsonType = typeof(TModel);
             jsonResultHandler = action;
@@ -163,7 +168,7 @@ namespace Wupoo
             {
                 foreach ((Type type, Action<Exception> action) in exceptionHandlers)
                 {
-                    if (e.GetType().IsAssignableFrom(type))
+                    if (e.GetType().IsAssignableTo(type))
                     {
                         action(e);
                     }
