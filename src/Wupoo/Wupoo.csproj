@@ -8,7 +8,7 @@
     <Product>Wupoo</Product>
     <Summary>a fluent lib to access web api</Summary>
     <Description>a fluent lib to access web api</Description>
-    <RepositoryUrl>https://github.com/ac682/Wupoo</RepositoryUrl>
+    <RepositoryUrl>https://github.com/d3ara1n/Wupoo</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
