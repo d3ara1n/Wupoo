@@ -6,7 +6,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using Wupoo.Exceptions;
 
 namespace Wupoo
 {
@@ -25,7 +24,6 @@ namespace Wupoo
         private Action<string, Stream> streamResultHandler;
         private HttpMethods method = HttpMethods.Get;
         private HttpContent postContent;
-
 
         public Wapoo(WapooOptions options, string url)
         {
@@ -92,7 +90,6 @@ namespace Wupoo
             return this;
         }
 
-
         public Wapoo ViaGet()
         {
             method = HttpMethods.Get;
@@ -127,10 +124,12 @@ namespace Wupoo
                     case HttpMethods.Get:
                         message = await client.GetAsync(_url);
                         break;
+
                     case HttpMethods.Post:
                         if (postContent == null) this.WithJsonBody(new object());
                         message = await client.PostAsync(_url, postContent);
                         break;
+
                     default:
                         message = null;
                         break;
@@ -177,6 +176,5 @@ namespace Wupoo
         }
 
         public void Fetch() => FetchAsync().Wait();
-
     }
 }
