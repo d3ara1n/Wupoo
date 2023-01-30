@@ -1,22 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
-    <Title>Wupoo</Title>
-    <PackageId>Wupoo</PackageId>
-    <Authors>Chien Zhang</Authors>
-    <Product>Wupoo</Product>
-    <Summary>a fluent lib to access web api</Summary>
-    <Description>a fluent lib to access web api</Description>
-    <RepositoryUrl>https://github.com/d3ara1n/Wupoo</RepositoryUrl>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <Nullable>disable</Nullable>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <Title>Wupoo</Title>
+        <PackageId>Wupoo</PackageId>
+        <Authors>Chien Zhang</Authors>
+        <Product>Wupoo</Product>
+        <Summary>a fluent lib to access web api</Summary>
+        <Description>a fluent lib to access web api</Description>
+        <RepositoryUrl>https://github.com/d3ara1n/Wupoo</RepositoryUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <Nullable>disable</Nullable>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.2"/>
+    </ItemGroup>
 
 </Project>

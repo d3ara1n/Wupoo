@@ -1,8 +1,7 @@
-﻿namespace Wupoo
+﻿namespace Wupoo;
+
+public enum HttpMethods
 {
-    public enum HttpMethods
-    {
-        Get,
-        Post
-    }
+    Get,
+    Post
 }
