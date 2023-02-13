@@ -47,7 +47,8 @@ public class Wapoo
         return this;
     }
 
-    public Wapoo WhenException<TEx>(Action<TEx> action) where TEx : Exception
+    public Wapoo WhenException<TEx>(Action<TEx> action)
+        where TEx : Exception
     {
         exceptionHandlers.Add((typeof(TEx), (Action<Exception>)action));
         return this;
@@ -104,21 +105,24 @@ public class Wapoo
 
     public Wapoo WithJsonBody(object obj)
     {
-        postContent =
-            new StringContent(
-                _options.JsonSerializerOptions == null
-                    ? JsonConvert.SerializeObject(obj)
-                    : JsonConvert.SerializeObject(obj, _options.JsonSerializerOptions), Encoding.UTF8,
-                "application/json");
+        postContent = new StringContent(
+            _options.JsonSerializerOptions == null
+                ? JsonConvert.SerializeObject(obj)
+                : JsonConvert.SerializeObject(obj, _options.JsonSerializerOptions),
+            Encoding.UTF8,
+            "application/json"
+        );
         return this;
     }
 
     public async Task FetchAsync()
     {
         var client = new HttpClient();
-        client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("Wupoo",
-            GetType().Assembly.GetName().Version.ToString()));
-        if (_options.Authentication != null) client.DefaultRequestHeaders.Authorization = _options.Authentication;
+        client.DefaultRequestHeaders.UserAgent.Add(
+            new ProductInfoHeaderValue("Wupoo", GetType().Assembly.GetName().Version.ToString())
+        );
+        if (_options.Authentication != null)
+            client.DefaultRequestHeaders.Authorization = _options.Authentication;
         HttpResponseMessage message;
         try
         {
@@ -129,7 +133,8 @@ public class Wapoo
                     break;
 
                 case HttpMethods.Post:
-                    if (postContent == null) WithJsonBody(new object());
+                    if (postContent == null)
+                        WithJsonBody(new object());
                     message = await client.PostAsync(_url, postContent);
                     break;
 
@@ -140,32 +145,57 @@ public class Wapoo
 
             var contiuneAfterCodeHandling = true;
             if (codeHandlers.ContainsKey((int)message.StatusCode))
-                contiuneAfterCodeHandling = codeHandlers[(int)message.StatusCode]((int)message.StatusCode);
+                contiuneAfterCodeHandling = codeHandlers[(int)message.StatusCode](
+                    (int)message.StatusCode
+                );
             if (contiuneAfterCodeHandling)
             {
-                streamResultHandler?.Invoke(message.Content.Headers.ContentType.MediaType,
-                    await message.Content.ReadAsStreamAsync());
-                if (stringResultHandler != null && (message.Content.Headers.ContentType.MediaType == "text/plain" ||
-                                                    _options.IgnoreMediaTypeCheck))
+                streamResultHandler?.Invoke(
+                    message.Content.Headers.ContentType.MediaType,
+                    await message.Content.ReadAsStreamAsync()
+                );
+                if (
+                    stringResultHandler != null
+                    && (
+                        message.Content.Headers.ContentType.MediaType == "text/plain"
+                        || _options.IgnoreMediaTypeCheck
+                    )
+                )
                 {
                     var text = await message.Content.ReadAsStringAsync();
                     stringResultHandler(text);
                 }
 
-                if (jsonResultHandler != null && (message.Content.Headers.ContentType.MediaType == "application/json" ||
-                                                  _options.IgnoreMediaTypeCheck))
+                if (
+                    jsonResultHandler != null
+                    && (
+                        message.Content.Headers.ContentType.MediaType == "application/json"
+                        || _options.IgnoreMediaTypeCheck
+                    )
+                )
                 {
                     var json = await message.Content.ReadAsStringAsync();
                     object jsonObj;
                     if (jsonType == null)
-                        jsonObj = _options.JsonSerializerOptions == null
-                            ? JsonConvert.DeserializeObject<dynamic>(json)
-                            : JsonConvert.DeserializeObject<dynamic>(json, _options.JsonSerializerOptions);
+                        jsonObj =
+                            _options.JsonSerializerOptions == null
+                                ? JsonConvert.DeserializeObject<dynamic>(json)
+                                : JsonConvert.DeserializeObject<dynamic>(
+                                    json,
+                                    _options.JsonSerializerOptions
+                                );
                     else
-                        jsonObj = _options.JsonSerializerOptions == null
-                            ? JsonConvert.DeserializeObject(json, jsonType)
-                            : JsonConvert.DeserializeObject(json, jsonType, _options.JsonSerializerOptions);
-                    typeof(Action<>).MakeGenericType(jsonType).GetMethod("Invoke")
+                        jsonObj =
+                            _options.JsonSerializerOptions == null
+                                ? JsonConvert.DeserializeObject(json, jsonType)
+                                : JsonConvert.DeserializeObject(
+                                    json,
+                                    jsonType,
+                                    _options.JsonSerializerOptions
+                                );
+                    typeof(Action<>)
+                        .MakeGenericType(jsonType)
+                        .GetMethod("Invoke")
                         ?.Invoke(jsonResultHandler, new[] { jsonObj });
                 }
             }
