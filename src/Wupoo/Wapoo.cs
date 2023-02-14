@@ -29,11 +29,11 @@ public class Wapoo
         _url = url;
     }
 
-    public static WapooOptions DefaultOptons { get; } = new();
+    public static WapooOptions DefaultOptions { get; } = new();
 
     public static Wapoo Wohoo(string url)
     {
-        return new Wapoo(DefaultOptons, url);
+        return new Wapoo(DefaultOptions, url);
     }
 
     public static Wapoo Wohoo(string url, WapooOptions options)
@@ -103,14 +103,17 @@ public class Wapoo
         return this;
     }
 
-    public Wapoo WithJsonBody(object obj)
+    public Wapoo WithJsonBody(object obj) => WithJsonBody(obj, "application/json");
+
+    public Wapoo WithJsonBody(object obj, string mediaType)
     {
-        postContent = new StringContent(
-            _options.JsonSerializerOptions == null
-                ? JsonConvert.SerializeObject(obj)
-                : JsonConvert.SerializeObject(obj, _options.JsonSerializerOptions),
+        var content =
+           _options.JsonSerializerOptions == null
+               ? JsonConvert.SerializeObject(obj)
+               : JsonConvert.SerializeObject(obj, _options.JsonSerializerOptions);
+        postContent = new StringContent(content,
             Encoding.UTF8,
-            "application/json"
+            mediaType
         );
         return this;
     }
@@ -119,7 +122,7 @@ public class Wapoo
     {
         var client = new HttpClient();
         client.DefaultRequestHeaders.UserAgent.Add(
-            new ProductInfoHeaderValue("Wupoo", GetType().Assembly.GetName().Version.ToString())
+            new ProductInfoHeaderValue("Wupoo", GetType().Assembly.GetName().Version!.ToString())
         );
         if (_options.Authentication != null)
             client.DefaultRequestHeaders.Authorization = _options.Authentication;
@@ -144,20 +147,20 @@ public class Wapoo
             }
 
             var contiuneAfterCodeHandling = true;
-            if (codeHandlers.ContainsKey((int)message.StatusCode))
+            if (codeHandlers.ContainsKey((int)message!.StatusCode))
                 contiuneAfterCodeHandling = codeHandlers[(int)message.StatusCode](
                     (int)message.StatusCode
                 );
             if (contiuneAfterCodeHandling)
             {
                 streamResultHandler?.Invoke(
-                    message.Content.Headers.ContentType.MediaType,
+                    message.Content.Headers.ContentType!.MediaType,
                     await message.Content.ReadAsStreamAsync()
                 );
                 if (
                     stringResultHandler != null
                     && (
-                        message.Content.Headers.ContentType.MediaType == "text/plain"
+                        message.Content.Headers.ContentType!.MediaType == "text/plain"
                         || _options.IgnoreMediaTypeCheck
                     )
                 )
@@ -169,7 +172,7 @@ public class Wapoo
                 if (
                     jsonResultHandler != null
                     && (
-                        message.Content.Headers.ContentType.MediaType == "application/json"
+                        message.Content.Headers.ContentType!.MediaType == "application/json"
                         || _options.IgnoreMediaTypeCheck
                     )
                 )
@@ -193,8 +196,7 @@ public class Wapoo
                                     jsonType,
                                     _options.JsonSerializerOptions
                                 );
-                    typeof(Action<>)
-                        .MakeGenericType(jsonType)
+                    (jsonType == null ? typeof(Action<dynamic>) : typeof(Action<>).MakeGenericType(jsonType))
                         .GetMethod("Invoke")
                         ?.Invoke(jsonResultHandler, new[] { jsonObj });
                 }
