@@ -103,14 +103,17 @@ public class Wapoo
         return this;
     }
 
-    public Wapoo WithJsonBody(object obj) => WithJsonBody(obj, "application/json");
+    public Wapoo WithJsonBody(object obj)
+    {
+        return WithJsonBody(obj, "application/json");
+    }
 
     public Wapoo WithJsonBody(object obj, string mediaType)
     {
         var content =
-           _options.JsonSerializerOptions == null
-               ? JsonConvert.SerializeObject(obj)
-               : JsonConvert.SerializeObject(obj, _options.JsonSerializerOptions);
+            _options.JsonSerializerOptions == null
+                ? JsonConvert.SerializeObject(obj)
+                : JsonConvert.SerializeObject(obj, _options.JsonSerializerOptions);
         postContent = new StringContent(content,
             Encoding.UTF8,
             mediaType
