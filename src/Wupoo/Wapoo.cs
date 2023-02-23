@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -22,6 +24,8 @@ public class Wapoo
     private HttpContent postContent;
     private Action<string, Stream> streamResultHandler;
     private Action<string> stringResultHandler;
+    private AuthenticationHeaderValue? authenticationOverride;
+    private Dictionary<string, string> headers = new Dictionary<string, string>();
 
     public Wapoo(WapooOptions options, string url)
     {
@@ -81,7 +85,13 @@ public class Wapoo
 
     public Wapoo UseBearer(string token)
     {
-        _options.Authentication = new AuthenticationHeaderValue("Bearer", token);
+        authenticationOverride = new AuthenticationHeaderValue("Bearer", token);
+        return this;
+    }
+
+    public Wapoo WithHeader(string key, string value)
+    {
+        headers.Add(key, value);
         return this;
     }
 
@@ -128,7 +138,10 @@ public class Wapoo
             new ProductInfoHeaderValue("Wupoo", GetType().Assembly.GetName().Version!.ToString())
         );
         if (_options.Authentication != null)
-            client.DefaultRequestHeaders.Authorization = _options.Authentication;
+            client.DefaultRequestHeaders.Authorization = authenticationOverride ?? _options.Authentication;
+        foreach (var (key, value) in _options.AdditionalHeaders.UnionBy(headers, pair => pair.Key))
+            client.DefaultRequestHeaders.Add(key, value);
+
         HttpResponseMessage message;
         try
         {
@@ -215,6 +228,6 @@ public class Wapoo
 
     public void Fetch()
     {
-        FetchAsync().Wait();
+        FetchAsync().RunSynchronously();
     }
 }
