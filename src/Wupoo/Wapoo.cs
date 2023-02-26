@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -24,7 +25,7 @@ public class Wapoo
     private HttpContent postContent;
     private Action<string, Stream> streamResultHandler;
     private Action<string> stringResultHandler;
-    private AuthenticationHeaderValue? authenticationOverride;
+    private AuthenticationHeaderValue authenticationOverride;
     private Dictionary<string, string> headers = new Dictionary<string, string>();
 
     public Wapoo(WapooOptions options, string url)
@@ -131,13 +132,15 @@ public class Wapoo
         return this;
     }
 
-    public async Task FetchAsync()
+    public Task FetchAsync() => FetchAsync(CancellationToken.None);
+
+    public async Task FetchAsync(CancellationToken token)
     {
         var client = new HttpClient();
         client.DefaultRequestHeaders.UserAgent.Add(
             new ProductInfoHeaderValue("Wupoo", GetType().Assembly.GetName().Version!.ToString())
         );
-        if (_options.Authentication != null)
+        if (authenticationOverride != null || _options.Authentication != null)
             client.DefaultRequestHeaders.Authorization = authenticationOverride ?? _options.Authentication;
         foreach (var (key, value) in _options.AdditionalHeaders.UnionBy(headers, pair => pair.Key))
             client.DefaultRequestHeaders.Add(key, value);
@@ -148,19 +151,21 @@ public class Wapoo
             switch (method)
             {
                 case HttpMethods.Get:
-                    message = await client.GetAsync(_url);
+                    message = await client.GetAsync(_url, token);
                     break;
 
                 case HttpMethods.Post:
                     if (postContent == null)
                         WithJsonBody(new object());
-                    message = await client.PostAsync(_url, postContent);
+                    message = await client.PostAsync(_url, postContent, token);
                     break;
 
                 default:
                     message = null;
                     break;
             }
+
+            if (token.IsCancellationRequested) return;
 
             var contiuneAfterCodeHandling = true;
             if (codeHandlers.ContainsKey((int)message!.StatusCode))
@@ -188,7 +193,7 @@ public class Wapoo
                 if (
                     jsonResultHandler != null
                     && (
-                        message.Content.Headers.ContentType!.MediaType == "application/json"
+                        message.Content.Headers.ContentType?.MediaType == "application/json"
                         || _options.IgnoreMediaTypeCheck
                     )
                 )
