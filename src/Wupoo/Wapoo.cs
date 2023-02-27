@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,14 +18,14 @@ public class Wapoo
     private readonly Dictionary<int, Func<int, bool>> codeHandlers = new();
 
     private readonly List<(Type, Action<Exception>)> exceptionHandlers = new();
+    private AuthenticationHeaderValue authenticationOverride;
+    private readonly Dictionary<string, string> headers = new();
     private object jsonResultHandler;
     private Type jsonType;
     private HttpMethods method = HttpMethods.Get;
     private HttpContent postContent;
     private Action<string, Stream> streamResultHandler;
     private Action<string> stringResultHandler;
-    private AuthenticationHeaderValue authenticationOverride;
-    private Dictionary<string, string> headers = new Dictionary<string, string>();
 
     public Wapoo(WapooOptions options, string url)
     {
@@ -132,7 +131,10 @@ public class Wapoo
         return this;
     }
 
-    public Task FetchAsync() => FetchAsync(CancellationToken.None);
+    public Task FetchAsync()
+    {
+        return FetchAsync(CancellationToken.None);
+    }
 
     public async Task FetchAsync(CancellationToken token)
     {
