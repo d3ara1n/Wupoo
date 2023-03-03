@@ -18,8 +18,8 @@ public class Wapoo
     private readonly Dictionary<int, Func<int, bool>> codeHandlers = new();
 
     private readonly List<(Type, Action<Exception>)> exceptionHandlers = new();
-    private AuthenticationHeaderValue authenticationOverride;
     private readonly Dictionary<string, string> headers = new();
+    private AuthenticationHeaderValue authenticationOverride;
     private object jsonResultHandler;
     private Type jsonType;
     private HttpMethods method = HttpMethods.Get;
