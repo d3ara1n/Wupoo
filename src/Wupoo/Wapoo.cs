@@ -124,10 +124,7 @@ public class Wapoo
             _options.JsonSerializerOptions == null
                 ? JsonConvert.SerializeObject(obj)
                 : JsonConvert.SerializeObject(obj, _options.JsonSerializerOptions);
-        postContent = new StringContent(content,
-            Encoding.UTF8,
-            mediaType
-        );
+        postContent = new StringContent(content, Encoding.UTF8, mediaType);
         return this;
     }
 
@@ -143,7 +140,8 @@ public class Wapoo
             new ProductInfoHeaderValue("Wupoo", GetType().Assembly.GetName().Version!.ToString())
         );
         if (authenticationOverride != null || _options.Authentication != null)
-            client.DefaultRequestHeaders.Authorization = authenticationOverride ?? _options.Authentication;
+            client.DefaultRequestHeaders.Authorization =
+                authenticationOverride ?? _options.Authentication;
         foreach (var (key, value) in _options.AdditionalHeaders.UnionBy(headers, pair => pair.Key))
             client.DefaultRequestHeaders.Add(key, value);
 
@@ -167,7 +165,8 @@ public class Wapoo
                     break;
             }
 
-            if (token.IsCancellationRequested) return;
+            if (token.IsCancellationRequested)
+                return;
 
             var contiuneAfterCodeHandling = true;
             if (codeHandlers.ContainsKey((int)message!.StatusCode))
@@ -219,7 +218,11 @@ public class Wapoo
                                     jsonType,
                                     _options.JsonSerializerOptions
                                 );
-                    (jsonType == null ? typeof(Action<dynamic>) : typeof(Action<>).MakeGenericType(jsonType))
+                    (
+                        jsonType == null
+                            ? typeof(Action<dynamic>)
+                            : typeof(Action<>).MakeGenericType(jsonType)
+                    )
                         .GetMethod("Invoke")
                         ?.Invoke(jsonResultHandler, new[] { jsonObj });
                 }
